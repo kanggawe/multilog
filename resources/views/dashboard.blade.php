@@ -21,7 +21,17 @@
                 </div>
 
                 <div class="mt-6">
-                    @if($user->isAdmin())
+                    @if($user->isSuperAdmin())
+                        <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-4">
+                            <div class="flex">
+                                <div class="ml-3">
+                                    <p class="text-sm text-purple-700">
+                                        <strong>Super Admin Access:</strong> You have full system privileges and control.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($user->isAdmin())
                         <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
                             <div class="flex">
                                 <div class="ml-3">

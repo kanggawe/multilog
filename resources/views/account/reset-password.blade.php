@@ -384,24 +384,7 @@
             <form method="POST" action="{{ route('password.update') }}">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token ?? request()->route('token') }}">
-
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="email" class="form-label" style="display: none;">Email Address</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope input-icon" style="display: none;"></i>
-                        <input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            required 
-                            value="{{ old('email') }}"
-                            class="form-input"
-                            placeholder="Enter your email"
-                            style="display: none;"
-                        >
-                    </div>
-                </div>
+                <input type="hidden" name="email" value="{{ $email ?? old('email', '') }}">
 
                 <!-- New Password -->
                 <div class="form-group">

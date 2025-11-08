@@ -16,7 +16,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        $roles = Role::where('name', 'user')->get(); // Only allow user role for registration
+        $roles = Role::where('level', 8)->get(); // Only allow Level 8 for registration
         return view('account.register', compact('roles'));
     }
 
@@ -31,16 +31,17 @@ class RegisterController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $userRole = Role::where('name', 'user')->first();
+        // Get Level 8 role as default for new registrations
+        $defaultRole = Role::where('level', 8)->first();
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $userRole->id ?? null,
+            'role_id' => $defaultRole->id ?? null,
         ]);
 
         return redirect()->route('login')
-            ->with('success', 'Registration successful! Please login.');
+            ->with('success', 'Registration successful! Please login with Level 8 access.');
     }
 }

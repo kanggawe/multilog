@@ -7,8 +7,11 @@
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Users Management</h1>
-            @if(auth()->user()->isAdmin())
-                <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            @if(auth()->user()->role && auth()->user()->role->level >= 7)
+                <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
                     Add New User
                 </a>
             @endif
@@ -39,12 +42,13 @@
                                     {{ $user->role->name ?? 'No Role' }}
                                 </span>
                                 <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                                @if(auth()->user()->isAdmin())
+                                @if(auth()->user()->canManage($user))
                                     <a href="{{ route('admin.users.edit', $user) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                    <a href="{{ route('admin.users.reset-password', $user) }}" class="text-green-600 hover:text-green-900">Reset Password</a>
                                     <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure?')">Delete</button>
+                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
                                     </form>
                                 @endif
                             </div>

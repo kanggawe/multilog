@@ -83,6 +83,9 @@
 
             <!-- Settings Content -->
             <div class="lg:col-span-2">
+                <form id="settingsForm" method="POST" action="{{ route('account.settings.update') }}">
+                    @csrf
+                    
                 <!-- General Settings -->
                 <div id="general" class="settings-section">
                     <div class="bg-white rounded-lg shadow">
@@ -95,10 +98,10 @@
                             <div>
                                 <label for="language" class="block text-sm font-medium text-gray-700">Language</label>
                                 <select id="language" name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-gray-900">
-                                    <option value="en" {{ auth()->check() && auth()->user() && auth()->user()->language == 'en' ? 'selected' : '' }}>English</option>
-                                    <option value="id" {{ auth()->check() && auth()->user() && auth()->user()->language == 'id' ? 'selected' : '' }}>Bahasa Indonesia</option>
-                                    <option value="es" {{ auth()->check() && auth()->user() && auth()->user()->language == 'es' ? 'selected' : '' }}>Español</option>
-                                    <option value="fr" {{ auth()->check() && auth()->user() && auth()->user()->language == 'fr' ? 'selected' : '' }}>Français</option>
+                                    <option value="en" {{ (auth()->user()->language ?? 'en') == 'en' ? 'selected' : '' }}>English</option>
+                                    <option value="id" {{ (auth()->user()->language ?? '') == 'id' ? 'selected' : '' }}>Bahasa Indonesia</option>
+                                    <option value="es" {{ (auth()->user()->language ?? '') == 'es' ? 'selected' : '' }}>Español</option>
+                                    <option value="fr" {{ (auth()->user()->language ?? '') == 'fr' ? 'selected' : '' }}>Français</option>
                                 </select>
                             </div>
 
@@ -106,10 +109,10 @@
                             <div>
                                 <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
                                 <select id="timezone" name="timezone" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-gray-900">
-                                    <option value="UTC" {{ auth()->check() && auth()->user() && auth()->user()->timezone == 'UTC' ? 'selected' : '' }}>UTC</option>
-                                    <option value="Asia/Jakarta" {{ auth()->check() && auth()->user() && auth()->user()->timezone == 'Asia/Jakarta' ? 'selected' : '' }}>Asia/Jakarta (WIB)</option>
-                                    <option value="Asia/Makassar" {{ auth()->check() && auth()->user() && auth()->user()->timezone == 'Asia/Makassar' ? 'selected' : '' }}>Asia/Makassar (WITA)</option>
-                                    <option value="Asia/Jayapura" {{ auth()->check() && auth()->user() && auth()->user()->timezone == 'Asia/Jayapura' ? 'selected' : '' }}>Asia/Jayapura (WIT)</option>
+                                    <option value="UTC" {{ (auth()->user()->timezone ?? 'UTC') == 'UTC' ? 'selected' : '' }}>UTC</option>
+                                    <option value="Asia/Jakarta" {{ (auth()->user()->timezone ?? '') == 'Asia/Jakarta' ? 'selected' : '' }}>Asia/Jakarta (WIB)</option>
+                                    <option value="Asia/Makassar" {{ (auth()->user()->timezone ?? '') == 'Asia/Makassar' ? 'selected' : '' }}>Asia/Makassar (WITA)</option>
+                                    <option value="Asia/Jayapura" {{ (auth()->user()->timezone ?? '') == 'Asia/Jayapura' ? 'selected' : '' }}>Asia/Jayapura (WIT)</option>
                                 </select>
                             </div>
 
@@ -117,9 +120,9 @@
                             <div>
                                 <label for="date_format" class="block text-sm font-medium text-gray-700">Date Format</label>
                                 <select id="date_format" name="date_format" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-gray-900">
-                                    <option value="Y-m-d" {{ auth()->check() && auth()->user() && auth()->user()->date_format == 'Y-m-d' ? 'selected' : '' }}>YYYY-MM-DD</option>
-                                    <option value="d/m/Y" {{ auth()->check() && auth()->user() && auth()->user()->date_format == 'd/m/Y' ? 'selected' : '' }}>DD/MM/YYYY</option>
-                                    <option value="m/d/Y" {{ auth()->check() && auth()->user() && auth()->user()->date_format == 'm/d/Y' ? 'selected' : '' }}>MM/DD/YYYY</option>
+                                    <option value="Y-m-d" {{ (auth()->user()->date_format ?? 'Y-m-d') == 'Y-m-d' ? 'selected' : '' }}>YYYY-MM-DD</option>
+                                    <option value="d/m/Y" {{ (auth()->user()->date_format ?? '') == 'd/m/Y' ? 'selected' : '' }}>DD/MM/YYYY</option>
+                                    <option value="m/d/Y" {{ (auth()->user()->date_format ?? '') == 'm/d/Y' ? 'selected' : '' }}>MM/DD/YYYY</option>
                                 </select>
                             </div>
 
@@ -128,15 +131,15 @@
                                 <label class="block text-sm font-medium text-gray-700">Theme</label>
                                 <div class="mt-2 space-y-2">
                                     <div class="flex items-center">
-                                        <input id="theme-light" name="theme" type="radio" value="light" {{ auth()->check() && auth()->user() && auth()->user()->theme == 'light' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <input id="theme-light" name="theme" type="radio" value="light" {{ (auth()->user()->theme ?? 'auto') == 'light' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                                         <label for="theme-light" class="ml-3 block text-sm font-medium text-gray-700">Light</label>
                                     </div>
                                     <div class="flex items-center">
-                                        <input id="theme-dark" name="theme" type="radio" value="dark" {{ auth()->check() && auth()->user() && auth()->user()->theme == 'dark' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <input id="theme-dark" name="theme" type="radio" value="dark" {{ (auth()->user()->theme ?? 'auto') == 'dark' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                                         <label for="theme-dark" class="ml-3 block text-sm font-medium text-gray-700">Dark</label>
                                     </div>
                                     <div class="flex items-center">
-                                        <input id="theme-auto" name="theme" type="radio" value="auto" {{ auth()->check() && auth()->user() && auth()->user()->theme == 'auto' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        <input id="theme-auto" name="theme" type="radio" value="auto" {{ (auth()->user()->theme ?? 'auto') == 'auto' ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                                         <label for="theme-auto" class="ml-3 block text-sm font-medium text-gray-700">Auto (System)</label>
                                     </div>
                                 </div>
@@ -351,11 +354,12 @@
 
                 <!-- Save Button -->
                 <div class="mt-6 flex justify-end">
-                    <button type="button" onclick="saveSettings()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <i class="fas fa-save mr-2"></i>
                         Save Settings
                     </button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -421,6 +425,8 @@
 @push('scripts')
 <script>
 function showSection(sectionId) {
+    event.preventDefault();
+    
     // Hide all sections
     document.querySelectorAll('.settings-section').forEach(section => {
         section.classList.add('hidden');
@@ -431,18 +437,14 @@ function showSection(sectionId) {
     
     // Update navigation active state
     document.querySelectorAll('.settings-nav-item').forEach(item => {
-        item.classList.remove('active', 'bg-blue-50', 'border-blue-500', 'text-blue-700');
-        item.classList.add('text-gray-900', 'hover:bg-gray-50');
+        item.classList.remove('active', 'bg-blue-50', 'dark:bg-blue-900/20', 'border-blue-500', 'text-blue-700', 'dark:text-blue-300');
+        item.classList.add('text-gray-900', 'dark:text-gray-300', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
     });
     
     // Add active class to clicked item
-    event.target.classList.add('active', 'bg-blue-50', 'border-blue-500', 'text-blue-700');
-    event.target.classList.remove('text-gray-900', 'hover:bg-gray-50');
-}
-
-function saveSettings() {
-    // Add your save logic here
-    alert('Settings saved successfully!');
+    const clickedItem = event.currentTarget;
+    clickedItem.classList.add('active', 'bg-blue-50', 'dark:bg-blue-900/20', 'border-blue-500', 'text-blue-700', 'dark:text-blue-300');
+    clickedItem.classList.remove('hover:bg-gray-50', 'dark:hover:bg-gray-700');
 }
 </script>
 @endpush

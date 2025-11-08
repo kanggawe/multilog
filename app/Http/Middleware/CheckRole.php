@@ -23,7 +23,27 @@ class CheckRole
 
         // Check if user has any of the required roles
         foreach ($roles as $role) {
+            // Check by exact role name
             if ($user->hasRole($role)) {
+                return $next($request);
+            }
+
+            // Check by role level (e.g., 'level:7' means level >= 7)
+            if (str_starts_with($role, 'level:')) {
+                $requiredLevel = (int) substr($role, 6);
+                if ($user->hasMinLevel($requiredLevel)) {
+                    return $next($request);
+                }
+            }
+
+            // Check by role type (admin, manager, user)
+            if ($role === 'admin' && $user->isAdmin()) {
+                return $next($request);
+            }
+            if ($role === 'manager' && ($user->isManager() || $user->isAdmin() || ($user->role && $user->role->level >= 7))) {
+                return $next($request);
+            }
+            if ($role === 'superadmin' && $user->isSuperAdmin()) {
                 return $next($request);
             }
         }

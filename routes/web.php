@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('account')->name('account.')->group(function () {
         Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
         Route::get('/settings', [AccountController::class, 'settings'])->name('settings');
+        Route::post('/settings', [AccountController::class, 'updateSettings'])->name('settings.update');
         Route::get('/edit-profile', [AccountController::class, 'editProfile'])->name('edit-profile');
         Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
         Route::get('/change-password', [AccountController::class, 'changePassword'])->name('password.change');
@@ -49,5 +50,9 @@ Route::middleware('auth')->group(function () {
     // Admin routes
     Route::middleware('role:admin,manager')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
+        
+        // Additional user management routes
+        Route::get('/users/{user}/reset-password', [UserController::class, 'resetPasswordForm'])->name('users.reset-password');
+        Route::put('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password.update');
     });
 });

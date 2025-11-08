@@ -115,4 +115,26 @@ class AccountController extends Controller
             'showBreadcrumb' => true,
         ]);
     }
+
+    /**
+     * Update user settings.
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'language' => ['nullable', 'string', 'in:en,id,es,fr'],
+            'timezone' => ['nullable', 'string'],
+            'date_format' => ['nullable', 'string', 'in:Y-m-d,d/m/Y,m/d/Y'],
+            'theme' => ['nullable', 'string', 'in:light,dark,auto'],
+            'email_notifications' => ['nullable', 'boolean'],
+            'push_notifications' => ['nullable', 'boolean'],
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->route('account.settings')
+            ->with('success', 'Settings updated successfully.');
+    }
 }
