@@ -332,16 +332,25 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('dashboard') }}" class="text-xl font-bold text-gray-800">Multi-Level User</a>
+                        <a href="{{ route('billing.dashboard') }}" class="text-xl font-bold text-gray-800">ISP Billing System</a>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         @auth
-                            <a href="{{ route('dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                Dashboard
+                            <a href="{{ route('billing.dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                            </a>
+                            <a href="{{ route('customers.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-users mr-1"></i> Customer
+                            </a>
+                            <a href="{{ route('packages.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-wifi mr-1"></i> Paket
+                            </a>
+                            <a href="{{ route('pppoe.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-network-wired mr-1"></i> PPPoE
                             </a>
                             @if(auth()->user()->isAdmin() || auth()->user()->isManager())
                                 <a href="{{ route('admin.users.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                    Users
+                                    <i class="fas fa-user-cog mr-1"></i> Users
                                 </a>
                             @endif
                             <a href="{{ route('account.profile') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">

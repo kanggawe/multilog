@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return redirect()->route('billing.dashboard');
 });
 
 // Authentication routes
@@ -35,6 +35,11 @@ Route::get('/password-reset-success', [ResetPasswordController::class, 'resetSuc
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Profile routes (standard Laravel format)
+    Route::get('/profile', [AccountController::class, 'editProfile'])->name('profile.edit');
+    Route::patch('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::delete('/profile', [AccountController::class, 'destroy'])->name('profile.destroy');
+    
     // Account routes
     Route::prefix('account')->name('account.')->group(function () {
         Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
@@ -47,6 +52,50 @@ Route::middleware('auth')->group(function () {
         Route::get('/help', [AccountController::class, 'help'])->name('help');
     });
     
+    // Billing routes
+    Route::prefix('billing')->name('billing.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\BillingController::class, 'dashboard'])->name('dashboard');
+        Route::post('/generate-invoices', [\App\Http\Controllers\BillingController::class, 'generateMonthlyInvoices'])->name('generate.invoices');
+        Route::get('/reports/financial', [\App\Http\Controllers\BillingController::class, 'financialReport'])->name('reports.financial');
+        Route::get('/reports/customers', [\App\Http\Controllers\BillingController::class, 'customerReport'])->name('reports.customers');
+        
+        // Invoice management routes
+        Route::prefix('invoices')->name('invoices.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\BillingController::class, 'invoices'])->name('index');
+            Route::get('/{invoice}', [\App\Http\Controllers\BillingController::class, 'showInvoice'])->name('show');
+            Route::get('/{invoice}/print', [\App\Http\Controllers\BillingController::class, 'printInvoice'])->name('print');
+            Route::post('/{invoice}/send-email', [\App\Http\Controllers\BillingController::class, 'sendInvoiceEmail'])->name('send-email');
+            Route::delete('/{invoice}', [\App\Http\Controllers\BillingController::class, 'deleteInvoice'])->name('destroy');
+        });
+        
+        // Payment management routes  
+        Route::prefix('payments')->name('payments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\BillingController::class, 'payments'])->name('index');
+            Route::get('/create/{invoice?}', [\App\Http\Controllers\BillingController::class, 'createPayment'])->name('create');
+            Route::post('/', [\App\Http\Controllers\BillingController::class, 'storePayment'])->name('store');
+            Route::get('/{payment}', [\App\Http\Controllers\BillingController::class, 'showPayment'])->name('show');
+            Route::get('/{payment}/receipt', [\App\Http\Controllers\BillingController::class, 'printReceipt'])->name('receipt');
+            Route::delete('/{payment}', [\App\Http\Controllers\BillingController::class, 'deletePayment'])->name('destroy');
+            
+            // Payment Gateway routes
+            Route::get('/{invoice}/gateway', [\App\Http\Controllers\PaymentGatewayController::class, 'showPaymentGateway'])->name('gateway');
+            Route::post('/{invoice}/gateway', [\App\Http\Controllers\PaymentGatewayController::class, 'processPayment'])->name('gateway.process');
+            Route::get('/success', [\App\Http\Controllers\PaymentGatewayController::class, 'paymentSuccess'])->name('success');
+            Route::get('/{payment}/check-status', [\App\Http\Controllers\PaymentGatewayController::class, 'checkStatus'])->name('check-status');
+        });
+    });
+
+    // Customer management routes
+    Route::resource('customers', \App\Http\Controllers\CustomerController::class);
+    
+    // Internet package management routes
+    Route::resource('packages', \App\Http\Controllers\InternetPackageController::class);
+    
+    // PPPoE account management routes
+    Route::resource('pppoe', \App\Http\Controllers\PPPoEController::class);
+    Route::post('/pppoe/{pppoe}/enable', [\App\Http\Controllers\PPPoEController::class, 'enable'])->name('pppoe.enable');
+    Route::post('/pppoe/{pppoe}/disable', [\App\Http\Controllers\PPPoEController::class, 'disable'])->name('pppoe.disable');
+
     // Admin routes
     Route::middleware('role:admin,manager')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
@@ -55,4 +104,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/{user}/reset-password', [UserController::class, 'resetPasswordForm'])->name('users.reset-password');
         Route::put('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password.update');
     });
+});
+
+// Tripay webhook routes (no auth required)
+Route::prefix('api/tripay')->name('tripay.')->group(function () {
+    Route::post('/callback', [\App\Http\Controllers\PaymentGatewayController::class, 'callback'])->name('callback');
 });

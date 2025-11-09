@@ -66,7 +66,7 @@ class AccountController extends Controller
 
         $user->update($validated);
 
-        return redirect()->route('account.profile')
+        return redirect()->route('profile.edit')
             ->with('success', 'Profile updated successfully.');
     }
 
@@ -136,5 +136,26 @@ class AccountController extends Controller
 
         return redirect()->route('account.settings')
             ->with('success', 'Settings updated successfully.');
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request)
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        auth()->logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Account deleted successfully.');
     }
 }
