@@ -62,7 +62,7 @@ class PPPoEController extends Controller
             'static_ip' => 'nullable|ip',
             'profile_name' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,suspended,expired',
-            'expires_at' => 'nullable|datetime',
+            'expires_at' => 'nullable|date',
             'notes' => 'nullable|string'
         ]);
 
@@ -109,7 +109,7 @@ class PPPoEController extends Controller
             'static_ip' => 'nullable|ip',
             'profile_name' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,suspended,expired',
-            'expires_at' => 'nullable|datetime',
+            'expires_at' => 'nullable|date',
             'notes' => 'nullable|string'
         ]);
 

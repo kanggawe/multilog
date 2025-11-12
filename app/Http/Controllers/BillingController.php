@@ -388,6 +388,74 @@ class BillingController extends Controller
     }
 
     /**
+     * Show form to create manual invoice
+     */
+    public function createManualInvoice()
+    {
+        $customers = Customer::where('status', 'active')
+                            ->with('subscriptions.package')
+                            ->orderBy('name')
+                            ->get();
+        
+        return view('billing.invoices.create-manual', compact('customers'));
+    }
+
+    /**
+     * Store manual invoice
+     */
+    public function storeManualInvoice(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'subscription_id' => 'nullable|exists:subscriptions,id',
+            'amount' => 'required|numeric|min:0',
+            'due_date' => 'required|date',
+            'description' => 'required|string',
+            'period_start' => 'nullable|date',
+            'period_end' => 'nullable|date|after:period_start',
+        ]);
+
+        // If subscription provided, check for existing unpaid invoice
+        if ($request->subscription_id) {
+            $subscription = Subscription::with('package')->findOrFail($request->subscription_id);
+            
+            $existingInvoice = Invoice::where('subscription_id', $subscription->id)
+                                      ->where('status', 'unpaid')
+                                      ->first();
+            
+            if ($existingInvoice) {
+                return back()->withInput()->with('error', 'Masih ada invoice yang belum dibayar untuk subscription ini.');
+            }
+        }
+
+        // Generate invoice number
+        $lastInvoice = Invoice::whereYear('created_at', now()->year)
+                             ->whereMonth('created_at', now()->month)
+                             ->orderBy('id', 'desc')
+                             ->first();
+        
+        $sequence = $lastInvoice ? (intval(substr($lastInvoice->invoice_number, -4)) + 1) : 1;
+        $invoiceNumber = 'INV/' . now()->format('Ym') . '/' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+        // Create invoice
+        $invoice = Invoice::create([
+            'invoice_number' => $invoiceNumber,
+            'customer_id' => $request->customer_id,
+            'subscription_id' => $request->subscription_id,
+            'amount' => $request->amount,
+            'paid_amount' => 0,
+            'status' => 'unpaid',
+            'due_date' => $request->due_date,
+            'invoice_date' => now(),
+            'description' => $request->description,
+            'notes' => 'Invoice manual - dibuat oleh ' . auth()->user()->name,
+        ]);
+
+        return redirect()->route('billing.invoices.show', $invoice)
+                        ->with('success', 'Invoice manual berhasil dibuat!');
+    }
+
+    /**
      * Delete payment
      */
     public function deletePayment(Payment $payment)

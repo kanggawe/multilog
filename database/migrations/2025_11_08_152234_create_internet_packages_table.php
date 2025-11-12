@@ -13,17 +13,22 @@ return new class extends Migration
     {
         Schema::create('internet_packages', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->integer('bandwidth_up'); // kbps
-            $table->integer('bandwidth_down'); // kbps
-            $table->decimal('price', 10, 2);
-            $table->enum('billing_cycle', ['monthly', 'quarterly', 'yearly'])->default('monthly');
-            $table->boolean('is_active')->default(true);
-            $table->integer('duration_days')->default(30); // durasi dalam hari
-            $table->string('ip_pool')->nullable(); // IP pool untuk PPPoE
-            $table->text('features')->nullable(); // JSON features tambahan
+            $table->string('name', 100)->comment('Package name');
+            $table->text('description')->nullable()->comment('Package description');
+            $table->integer('bandwidth_up')->comment('Upload speed in kbps');
+            $table->integer('bandwidth_down')->comment('Download speed in kbps');
+            $table->decimal('price', 10, 2)->comment('Package price');
+            $table->enum('billing_cycle', ['monthly', 'quarterly', 'yearly'])->default('monthly')->comment('Billing frequency');
+            $table->boolean('is_active')->default(true)->comment('Package availability status');
+            $table->integer('duration_days')->default(30)->comment('Package duration in days');
+            $table->string('ip_pool', 50)->nullable()->comment('IP pool for PPPoE');
+            $table->text('features')->nullable()->comment('Additional features (JSON)');
             $table->timestamps();
+            
+            // Indexes
+            $table->index('name');
+            $table->index('is_active');
+            $table->index('billing_cycle');
         });
     }
 

@@ -12,7 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('roles', function (Blueprint $table) {
-            $table->integer('level')->default(1)->after('name');
+            $table->integer('level')
+                ->default(1)
+                ->after('name')
+                ->comment('Role hierarchy level (1-10)');
+            
+            // Index for level-based queries
+            $table->index('level');
         });
     }
 
@@ -22,6 +28,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('roles', function (Blueprint $table) {
+            $table->dropIndex(['level']);
             $table->dropColumn('level');
         });
     }

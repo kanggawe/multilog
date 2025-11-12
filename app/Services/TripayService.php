@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PaymentSetting;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
@@ -9,25 +10,36 @@ use Illuminate\Support\Facades\Log;
 class TripayService
 {
     protected $client;
-    protected $config;
     protected $baseUrl;
     protected $apiKey;
     protected $privateKey;
     protected $merchantCode;
+    protected $environment;
 
     public function __construct()
     {
-        $this->config = config('tripay');
-        $environment = $this->config['environment'];
+        // Load configuration from database or .env
+        $config = PaymentSetting::getTripayConfig();
         
-        $this->baseUrl = $this->config[$environment]['base_url'];
-        $this->apiKey = $this->config[$environment]['api_key'];
-        $this->privateKey = $this->config[$environment]['private_key'];
-        $this->merchantCode = $this->config[$environment]['merchant_code'];
+        $this->environment = $config['environment'] ?? 'sandbox';
+        $this->apiKey = $config['api_key'];
+        $this->privateKey = $config['private_key'];
+        $this->merchantCode = $config['merchant_code'];
+        
+        // Set base URL based on environment
+        $this->baseUrl = $this->environment === 'production' 
+            ? 'https://tripay.co.id/api/'
+            : 'https://tripay.co.id/api-sandbox/';
+        
+        // Check if credentials are set
+        if (empty($this->apiKey) || empty($this->privateKey) || empty($this->merchantCode)) {
+            Log::warning('Tripay credentials not configured. Please configure payment settings in the admin panel.');
+        }
         
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
             'timeout' => 30,
+            'verify' => false, // Bypass SSL verification for local development
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
@@ -41,7 +53,23 @@ class TripayService
     public function getPaymentChannels()
     {
         try {
-            $response = $this->client->get('/merchant/payment-channel');
+            // Check if credentials are configured
+            if (empty($this->apiKey)) {
+                return [
+                    'success' => false,
+                    'data' => [],
+                    'message' => 'Tripay API Key not configured. Please configure payment settings in the admin panel.'
+                ];
+            }
+
+            $url = $this->baseUrl . 'merchant/payment-channel';
+            
+            Log::info('Tripay API Request', [
+                'full_url' => $url,
+                'api_key' => substr($this->apiKey, 0, 10) . '***'
+            ]);
+
+            $response = $this->client->get($url);
             $data = json_decode($response->getBody()->getContents(), true);
             
             return [
@@ -50,11 +78,26 @@ class TripayService
                 'message' => $data['message'] ?? 'Success'
             ];
         } catch (RequestException $e) {
-            Log::error('Tripay get payment channels error: ' . $e->getMessage());
+            $errorMessage = $e->getMessage();
+            $statusCode = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 'N/A';
+            
+            // Extract more specific error from response if available
+            if ($e->hasResponse()) {
+                $responseBody = $e->getResponse()->getBody()->getContents();
+                $errorData = json_decode($responseBody, true);
+                $errorMessage = $errorData['message'] ?? $errorMessage;
+            }
+            
+            Log::error('Tripay get payment channels error', [
+                'status' => $statusCode,
+                'message' => $errorMessage,
+                'url' => $this->baseUrl . 'merchant/payment-channel'
+            ]);
+            
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Failed to get payment channels: ' . $e->getMessage()
+                'message' => 'Failed to get payment channels (HTTP ' . $statusCode . '). Please check your Tripay configuration.'
             ];
         }
     }
@@ -65,6 +108,12 @@ class TripayService
     public function createTransaction($paymentData)
     {
         try {
+            // Get callback URL from database or use default
+            $setting = PaymentSetting::getActiveGateway('tripay');
+            $callbackUrl = $setting ? $setting->callback_url : route('tripay.callback');
+            $returnUrl = $paymentData['return_url'] ?? route('dashboard');
+            $expiryTime = $paymentData['expired_time'] ?? (time() + (24 * 3600)); // Default 24 hours
+            
             // Generate signature
             $signature = $this->generateSignature($paymentData);
             
@@ -76,17 +125,11 @@ class TripayService
                 'customer_email' => $paymentData['customer_email'],
                 'customer_phone' => $paymentData['customer_phone'],
                 'order_items' => $paymentData['order_items'],
-                'return_url' => $this->config['return_url'],
-                'expired_time' => time() + ($this->config['expiry_time'] * 3600), // Convert hours to seconds
-                'signature' => $signature
+                'return_url' => $returnUrl,
+                'expired_time' => $expiryTime,
+                'signature' => $signature,
+                'callback_url' => $callbackUrl
             ];
-
-            // Add optional fields
-            if (isset($paymentData['callback_url'])) {
-                $payload['callback_url'] = $paymentData['callback_url'];
-            } else {
-                $payload['callback_url'] = $this->config['callback_url'];
-            }
 
             $response = $this->client->post('/transaction/create', [
                 'json' => $payload

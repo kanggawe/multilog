@@ -137,7 +137,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="expires_at">Tanggal Expired (Opsional)</label>
-                                    <input type="datetime-local" class="form-control @error('expires_at') is-invalid @enderror" 
+                                    <input type="date" class="form-control @error('expires_at') is-invalid @enderror" 
                                            id="expires_at" name="expires_at" value="{{ old('expires_at') }}">
                                     @error('expires_at')
                                         <div class="invalid-feedback">{{ $message }}</div>

@@ -14,18 +14,29 @@ class Invoice extends Model
         'customer_id',
         'subscription_id',
         'invoice_date',
+        'issued_date',
         'due_date',
+        'period_start',
+        'period_end',
         'amount',
+        'tax_amount',
+        'total_amount',
         'paid_amount',
         'status',
         'description',
-        'notes'
+        'notes',
+        'created_by'
     ];
 
     protected $casts = [
         'invoice_date' => 'date',
+        'issued_date' => 'date',
         'due_date' => 'date',
+        'period_start' => 'date',
+        'period_end' => 'date',
         'amount' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2'
     ];
 
@@ -42,6 +53,11 @@ class Invoice extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // Get remaining amount

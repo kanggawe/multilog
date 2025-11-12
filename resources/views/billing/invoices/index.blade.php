@@ -8,12 +8,17 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h2>Manajemen Invoice</h2>
-                <form method="POST" action="{{ route('billing.generate.invoices') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-plus-circle"></i> Generate Monthly Invoices
-                    </button>
-                </form>
+                <div>
+                    <a href="{{ route('billing.invoices.create-manual') }}" class="btn btn-primary mr-2">
+                        <i class="fas fa-file-invoice"></i> Buat Invoice Manual
+                    </a>
+                    <form method="POST" action="{{ route('billing.generate.invoices') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus-circle"></i> Generate Monthly Invoices
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

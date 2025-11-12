@@ -12,7 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('created_by')->nullable()->after('role_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by')
+                ->nullable()
+                ->after('role_id')
+                ->constrained('users')
+                ->nullOnDelete()
+                ->comment('User who created this account');
+            
+            // Index for ownership queries
+            $table->index('created_by');
         });
     }
 
@@ -23,6 +31,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['created_by']);
+            $table->dropIndex(['created_by']);
             $table->dropColumn('created_by');
         });
     }

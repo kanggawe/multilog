@@ -59,9 +59,19 @@ class Customer extends Model
 
         static::creating(function ($customer) {
             if (empty($customer->customer_code)) {
+                // Get the last customer code
                 $lastCustomer = static::orderBy('id', 'desc')->first();
-                $nextNumber = $lastCustomer ? intval(substr($lastCustomer->customer_code, 4)) + 1 : 1;
-                $customer->customer_code = 'CUST' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                
+                if ($lastCustomer && $lastCustomer->customer_code) {
+                    // Extract number from last customer code (e.g., CUST-001 -> 1)
+                    preg_match('/\d+$/', $lastCustomer->customer_code, $matches);
+                    $nextNumber = isset($matches[0]) ? intval($matches[0]) + 1 : 1;
+                } else {
+                    $nextNumber = 1;
+                }
+                
+                // Generate new customer code with format CUST-XXX
+                $customer->customer_code = 'CUST-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
             }
         });
     }

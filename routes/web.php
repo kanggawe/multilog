@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
         // Invoice management routes
         Route::prefix('invoices')->name('invoices.')->group(function () {
             Route::get('/', [\App\Http\Controllers\BillingController::class, 'invoices'])->name('index');
+            Route::get('/create-manual', [\App\Http\Controllers\BillingController::class, 'createManualInvoice'])->name('create-manual');
+            Route::post('/create-manual', [\App\Http\Controllers\BillingController::class, 'storeManualInvoice'])->name('store-manual');
             Route::get('/{invoice}', [\App\Http\Controllers\BillingController::class, 'showInvoice'])->name('show');
             Route::get('/{invoice}/print', [\App\Http\Controllers\BillingController::class, 'printInvoice'])->name('print');
             Route::post('/{invoice}/send-email', [\App\Http\Controllers\BillingController::class, 'sendInvoiceEmail'])->name('send-email');
@@ -103,6 +105,15 @@ Route::middleware('auth')->group(function () {
         // Additional user management routes
         Route::get('/users/{user}/reset-password', [UserController::class, 'resetPasswordForm'])->name('users.reset-password');
         Route::put('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password.update');
+        
+        // Payment Gateway Settings routes
+        Route::prefix('payment-settings')->name('payment-settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\PaymentSettingController::class, 'index'])->name('index');
+            Route::get('/tripay/edit', [\App\Http\Controllers\PaymentSettingController::class, 'editTripay'])->name('tripay.edit');
+            Route::put('/tripay', [\App\Http\Controllers\PaymentSettingController::class, 'updateTripay'])->name('tripay.update');
+            Route::post('/tripay/test', [\App\Http\Controllers\PaymentSettingController::class, 'testTripay'])->name('tripay.test');
+            Route::post('/{gateway}/toggle-status', [\App\Http\Controllers\PaymentSettingController::class, 'toggleStatus'])->name('toggle-status');
+        });
     });
 });
 

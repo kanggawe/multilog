@@ -15,6 +15,7 @@ class CustomerSeeder extends Seeder
     {
         $customers = [
             [
+                'customer_code' => 'CUST-001',
                 'name' => 'Budi Santoso',
                 'address' => 'Jl. Merdeka No. 123, Kelurahan Merdeka, Kecamatan Central, Jakarta',
                 'phone' => '081234567890',
@@ -26,6 +27,7 @@ class CustomerSeeder extends Seeder
                 'notes' => 'Customer pertama, pembayaran selalu tepat waktu'
             ],
             [
+                'customer_code' => 'CUST-002',
                 'name' => 'Siti Nurhaliza',
                 'address' => 'Jl. Sudirman No. 456, Kelurahan Makmur, Kecamatan Selatan, Jakarta',
                 'phone' => '081234567891',
@@ -37,6 +39,7 @@ class CustomerSeeder extends Seeder
                 'notes' => 'Pengguna aktif, sering upgrade paket'
             ],
             [
+                'customer_code' => 'CUST-003',
                 'name' => 'Ahmad Wijaya',
                 'address' => 'Jl. Thamrin No. 789, Kelurahan Sejahtera, Kecamatan Utara, Jakarta',
                 'phone' => '081234567892',
@@ -48,6 +51,7 @@ class CustomerSeeder extends Seeder
                 'notes' => 'Pelanggan bisnis, membutuhkan support khusus'
             ],
             [
+                'customer_code' => 'CUST-004',
                 'name' => 'Dewi Sartika',
                 'address' => 'Jl. Gatot Subroto No. 321, Kelurahan Bahagia, Kecamatan Barat, Jakarta',
                 'phone' => '081234567893',
@@ -59,6 +63,7 @@ class CustomerSeeder extends Seeder
                 'notes' => 'Suspended karena tunggakan 2 bulan'
             ],
             [
+                'customer_code' => 'CUST-005',
                 'name' => 'Rini Susanti',
                 'address' => 'Jl. HR Rasuna Said No. 654, Kelurahan Harmoni, Kecamatan Timur, Jakarta',
                 'phone' => '081234567894',
